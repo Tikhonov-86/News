@@ -11,6 +11,10 @@ from django.views.generic import (
     ListView, DetailView, CreateView, UpdateView, DeleteView
 )
 
+from django.core.cache import cache
+
+from django.views.decorators.cache import cache_page
+
 from .filters import PostFilter
 from .models import Post, Category, Subscription
 from .forms import PostForm
@@ -21,7 +25,7 @@ class PostsList(ListView):
     ordering = '-dateCreation'
     template_name = 'news_list.html'
     context_object_name = 'Posts'
-    paginate_by = 10
+    paginate_by = 15
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -33,7 +37,15 @@ class PostDetail(DetailView):
     model = Post
     template_name = 'news.html'
     context_object_name = 'Post'
-    pk_url_kwarg = 'id'
+    pk_url_kwarg = 'pk'
+
+    def get_object(self, *args, **kwargs):
+        obj = cache.get(f'post-{self.kwargs["pk"]}', None)
+
+        if not obj:
+            obj = super().get_object(queryset=self.queryset)
+            cache.set(f'post-{self.kwargs["pk"]}', obj)
+        return obj
 
 
 class PostSearch(ListView):

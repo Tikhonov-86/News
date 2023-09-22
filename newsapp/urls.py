@@ -2,9 +2,10 @@ from .views import subscriptions
 from django.urls import path
 from . import views
 
+
 urlpatterns = [
    path('news/', views.PostsList.as_view(), name='news_list'),
-   path('news/<int:id>/', views.PostDetail.as_view(), name='news_detail'),
+   path('news/<int:pk>/', views.PostDetail.as_view(), name='news_detail'),
    path('search/', views.PostSearch.as_view(), name='news_search'),
    path('news/create/', views.PostCreate.as_view(), name='news_create'),
    path('news/<int:pk>/update/', views.PostUpdate.as_view(), name='news_update'),
